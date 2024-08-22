@@ -1,13 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, Image, TextInput, TouchableOpacity } from "react-native";
 import styles from "../styles/styles";
 import { useNavigation } from "@react-navigation/native";
+import {
+  isEmailValid,
+  isPasswordValid,
+} from "../utils/EmailPasswordValidation";
 
 export default SignUpScreen = () => {
   const navigation = useNavigation();
-  const handleSignUp = () => {
-    // setUser(user);
-    // navigation.navigate("Home");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSignUp = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+
+    if (!isEmailValid(email)) {
+      Alert.alert("Error", "Please enter a valid email address");
+      return;
+    }
+
+    if (!isPasswordValid(password)) {
+      Alert.alert(
+        "Error",
+        "Password must be at least 6 characters and contain a number and a special character"
+      );
+      return;
+    }
+
+    try {
+      await auth().createUserWithEmailAndPassword(email, password);
+      navigation.navigate("Dashboard");
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
   };
   return (
     <View style={styles.fullScreenAbsolute}>
@@ -40,7 +69,9 @@ export default SignUpScreen = () => {
               style={styles.buttonContainer}
               onPress={handleSignUp}
             >
-              <Text style={styles.buttonText}>SignUp</Text>
+              <Text style={styles.buttonText} onPress={handleSignUp}>
+                SignUp
+              </Text>
             </TouchableOpacity>
           </View>
           <View style={styles.rowCenter}>
